@@ -65,6 +65,41 @@ public class DebugDiagnostics : MonoBehaviour
             Debug.Log("<color=green>✅ Keyboard mapped correctly.</color>");
 
         Debug.Log("<color=cyan>-----------------------------------------------------</color>");
+
+        // Auto-fix all UI text perfectly!
+        var allText = Object.FindObjectsByType<TMPro.TextMeshProUGUI>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var txt in allText)
+        {
+            RectTransform rt = txt.GetComponent<RectTransform>();
+
+            // Specifically fix the tiny WorldSpace 'PopupCanvas' objects
+            if (txt.gameObject.name == "PopupCanvas")
+            {
+                // Standardize World Space sizing: 1 unit = 100 pixels, scale = 0.01
+                rt.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+                rt.sizeDelta = new Vector2(300, 150); // Nice wide box
+                
+                // Add a dark background so the white text is perfectly readable!
+                var img = txt.gameObject.GetComponent<UnityEngine.UI.Image>();
+                if (img == null) 
+                {
+                    img = txt.gameObject.AddComponent<UnityEngine.UI.Image>();
+                    img.color = new Color(0.1f, 0.1f, 0.1f, 0.85f); // Dark semi-transparent
+                }
+
+                // Add padding so text isn't glued to the edges
+                txt.margin = new Vector4(15, 10, 15, 10);
+            }
+
+            txt.enableAutoSizing = true;
+            txt.enableWordWrapping = true;
+            txt.alignment = TMPro.TextAlignmentOptions.Center;
+            
+            // Set universal healthy auto size bounds
+            txt.fontSizeMin = 10;
+            txt.fontSizeMax = 70;
+        }
+        Debug.Log($"<color=green>✅ Auto-fixed {allText.Length} UI Text elements! Added backgrounds, padding, and standardized size for perfect readability.</color>");
     }
 
     private void Update()
